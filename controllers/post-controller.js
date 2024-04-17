@@ -29,9 +29,11 @@ const get = async (req, res) => {
         "posturl",
         "likes",
         "user.firstname",
-        "user.lastname"
+        "user.lastname",
+        "post.created_at"
       )
-      .join("user", { "user.id": "post.user_id" });
+      .join("user", { "user.id": "post.user_id" })
+      .orderBy("post.created_at", "desc");
 
     res.status(200).json(SuccessResponse(200, allPost, "Fetched Successfully"));
   } catch (error) {

@@ -12,4 +12,8 @@ router
 .route('/challenge/:challengeId')
 .get(authorize, controller.getChallengeById);
 
+router
+.route('/challenge/search')
+.post(authorize, controller.search)
+
 module.exports = router

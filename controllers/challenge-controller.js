@@ -6,8 +6,24 @@ const knex = require("knex")(require("../knexfile"));
 const getAll = async (_req, res) => {
   try {
     const challengeAll = await knex("challenge")
-                    .where({status : "1"})
-                    .orderBy("created_at", "desc");
+      .where({ status: "1" })
+      .orderBy("created_at", "desc");
+    res
+      .status(200)
+      .json(SuccessResponse(200, challengeAll, "Fetched Successfully"));
+  } catch (error) {
+    res
+      .status(404)
+      .json(ErrorResponse(400, `Error Occurred!! Caused by ${error}`));
+  }
+};
+
+const search = async (req, res) => {
+  try {
+    const text = req.body.search;
+    console.log(text);
+    const challengeAll = await knex("challenge")
+      .orderBy("created_at", "desc");
     res
       .status(200)
       .json(SuccessResponse(200, challengeAll, "Fetched Successfully"));
@@ -43,20 +59,19 @@ const post = async (req, res) => {
       });
 
       const date = Date.now();
-      const expireIn = date + (duration * 60 * 1000);
+      const expireIn = date + duration * 60 * 1000;
       const job = new CronJob(new Date(expireIn), async () => {
-
         const post = await getPostByChallangeId(newChallengeId);
-        
+
         await knex("challenge")
           .where({ id: newChallengeId })
           .update({ status: false });
 
-        await knex('reward').insert({
-            challenge_id: post.challenge_id,
-            post_id: post.id,
-            user_id: post.user_id
-        })
+        await knex("reward").insert({
+          challenge_id: post.challenge_id,
+          post_id: post.id,
+          user_id: post.user_id,
+        });
       });
 
       job.start();
@@ -82,24 +97,25 @@ const getPostByChallangeId = async (_id) => {
   return res;
 };
 
-
 const getChallengeById = async (req, res) => {
-    try {
-        const getChallenge = await knex("challenge")
-            .where({ id: req.params.challengeId }).first();
-            
-        res.status(200)
-        .json(SuccessResponse(200, getChallenge, "Fetched Successfully"));
+  try {
+    const getChallenge = await knex("challenge")
+      .where({ id: req.params.challengeId })
+      .first();
 
-    } catch (error){
-        res
+    res
+      .status(200)
+      .json(SuccessResponse(200, getChallenge, "Fetched Successfully"));
+  } catch (error) {
+    res
       .status(404)
       .json(ErrorResponse(400, `Error Occurred!! Caused by ${error}`));
-    }
-}
+  }
+};
 
 module.exports = {
   getAll,
   post,
-  getChallengeById
+  getChallengeById,
+  search,
 };
