@@ -25,6 +25,7 @@ const index = async (req, res) => {
 
 const register = async (req, res) => {
   try {
+    console.log("body -> ", req.body)
     const { firstname, lastname, username, email, password } = req.body;
     if (!!firstname || !!lastname || !!username || !!email || !!password) {
       bcrypt.hash(password, 10, async (err, hash) => {
